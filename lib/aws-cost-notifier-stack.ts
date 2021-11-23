@@ -3,9 +3,9 @@ import { LambdaFunction } from '@aws-cdk/aws-events-targets';
 import { Effect, PolicyStatement, Role, ServicePrincipal } from '@aws-cdk/aws-iam';
 import { Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
+import { RetentionDays } from '@aws-cdk/aws-logs';
 import * as cdk from '@aws-cdk/core';
 
-const secretToken = process.env.SECRET_TOKEN;
 export class AwsCostNotifierStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -36,6 +36,7 @@ export class AwsCostNotifierStack extends cdk.Stack {
       memorySize: 128,
       timeout: cdk.Duration.seconds(30),
       role: role,
+      logRetention: RetentionDays.ONE_WEEK,
     });
 
     new Rule(this, 'cron-cost-notifier-function', {

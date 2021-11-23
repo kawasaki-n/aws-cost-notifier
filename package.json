@@ -38,6 +38,7 @@
     "@aws-cdk/aws-iam": "^1.133.0",
     "@aws-cdk/aws-lambda": "^1.133.0",
     "@aws-cdk/aws-lambda-nodejs": "^1.133.0",
+    "@aws-cdk/aws-logs": "^1.133.0",
     "@aws-cdk/core": "1.133.0",
     "aws-sdk": "^2.1034.0",
     "axios": "^0.24.0",
