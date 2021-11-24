@@ -1,14 +1,27 @@
-# Welcome to your CDK TypeScript project!
+# AWS Cost Notifier
 
-This is a blank project for TypeScript development with CDK.
+当月の AWS の利用料金を LINE に通知します。
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+# Description
 
-## Useful commands
+月初から当日までの AWS 利用料金を LINE Notify に通知します。  
+トータルの金額と、サービスごとの金額の両方を確認することができます。  
+毎日日本時間 18 時に通知を行います。
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+# Demo
+
+# Requirements
+
+- node@14
+- aws-cdk
+- LINE Notify のアクセストークン
+
+# Install
+
+# Note
+
+# Authoer
+
+KAWASAKI Naoya
+
+# License

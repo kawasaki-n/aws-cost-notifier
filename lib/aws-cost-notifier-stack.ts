@@ -32,6 +32,7 @@ export class AwsCostNotifierStack extends cdk.Stack {
       functionName: 'cost-notifier-function',
       environment: {
         LINE_NOTIFY_ACCESS_TOKEN: process.env.LINE_NOTIFY_ACCESS_TOKEN || '',
+        OPEN_EXCHANGE_RATES_APP_ID: process.env.OPEN_EXCHANGE_RATES_APP_ID || '',
       },
       memorySize: 128,
       timeout: cdk.Duration.seconds(30),
@@ -41,7 +42,7 @@ export class AwsCostNotifierStack extends cdk.Stack {
 
     new Rule(this, 'cron-cost-notifier-function', {
       // JSTで毎日18時に実行
-      schedule: Schedule.cron({ minute: '0', hour: '10', day: '*' }),
+      schedule: Schedule.cron({ minute: '0', hour: '9', day: '*' }),
       targets: [new LambdaFunction(lambda, { retryAttempts: 3 })],
     });
   }

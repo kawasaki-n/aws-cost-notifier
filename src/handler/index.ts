@@ -1,18 +1,22 @@
 import { AwsCostDataType } from '@/types';
 import { Handler } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import axios, { Axios, AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import moment = require('moment');
 import * as qs from 'querystring';
 import os = require('os');
 
 const dateFormat = 'YYYY-MM-DD';
-export const handler: Handler = async () => {
-  console.log('start handler');
 
+export const handler: Handler = async () => {
   const awsCostDatas = await getAwsCost();
-  const message = convertMessage(awsCostDatas);
+  const message = await convertMessage(awsCostDatas);
   await notify(message);
+
+  return {
+    status: 200,
+    body: 'SUCCESS',
+  };
 };
 
 const getAwsCost = async () => {
@@ -49,17 +53,42 @@ const getAwsCost = async () => {
   return ret;
 };
 
-const convertMessage = (awsCostDatas: AwsCostDataType[] | undefined) => {
+const convertMessage = async (awsCostDatas: AwsCostDataType[] | undefined) => {
   if (!awsCostDatas || awsCostDatas.length === 0)
     return `${os.EOL}AWSの利用料金が取得できませんでした。`;
 
+  const rate = await getCurrentRate();
+
   let ret = `${os.EOL}`;
   const data = awsCostDatas[0];
-  ret += `${data.period_end} までの利用料金は $ ${data.totalCost} です。${os.EOL}-----------------`;
+  ret += `${data.period_end} までの利用料金は ${convertDollarToJpy(data.totalCost, rate)} です。${
+    os.EOL
+  }-----------------`;
   data.serviceCost?.forEach((r) => {
-    ret += `${os.EOL}${r.service} / $ ${r.cost}`;
+    ret += `${os.EOL}${r.service} / ${convertDollarToJpy(r.cost, rate)}`;
   });
   return ret;
+};
+
+const getCurrentRate = async (): Promise<number | null> => {
+  return await axios
+    .get(
+      `https://openexchangerates.org/api/latest.json?app_id=${process.env.OPEN_EXCHANGE_RATES_APP_ID}`
+    )
+    .then((res) => {
+      return res.data.rates.JPY as number;
+    })
+    .catch((err) => {
+      console.error(err);
+      return null;
+    });
+};
+
+const convertDollarToJpy = (dollar: number, rate: number | null) => {
+  if (rate === null) {
+    return `${dollar} ドル`;
+  }
+  return `${Math.round(dollar * rate)} 円`;
 };
 
 const notify = async (msg: string) => {
