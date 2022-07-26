@@ -24,7 +24,7 @@ const getAwsCost = async () => {
   const constResult = await costExplorer
     .getCostAndUsage({
       TimePeriod: {
-        Start: moment().startOf('month').format(dateFormat),
+        Start: moment().add(-1, 'day').startOf('month').format(dateFormat),
         End: moment().format(dateFormat),
       },
       Metrics: ['NET_AMORTIZED_COST', 'UNBLENDED_COST'],
@@ -61,9 +61,10 @@ const convertMessage = async (awsCostDatas: AwsCostDataType[] | undefined) => {
 
   let ret = `${os.EOL}`;
   const data = awsCostDatas[0];
-  ret += `${data.period_end} までの利用料金は ${convertDollarToJpy(data.totalCost, rate)} です。${
-    os.EOL
-  }-----------------`;
+  ret += `${data.period_start} から ${data.period_end} までの利用料金は ${convertDollarToJpy(
+    data.totalCost,
+    rate
+  )} です。${os.EOL}-----------------`;
   data.serviceCost?.forEach((r) => {
     ret += `${os.EOL}${r.service} / ${convertDollarToJpy(r.cost, rate)}`;
   });
