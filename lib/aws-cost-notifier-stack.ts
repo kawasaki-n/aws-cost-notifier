@@ -1,10 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 import { Effect, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 
 export class AwsCostNotifierStack extends cdk.Stack {
@@ -38,7 +39,12 @@ export class AwsCostNotifierStack extends cdk.Stack {
       memorySize: 128,
       timeout: cdk.Duration.seconds(30),
       role: role,
-      logRetention: RetentionDays.ONE_WEEK,
+    });
+
+    const log = new LogGroup(this, `${lambda.node.id}LogGroup`, {
+      logGroupName: `/aws/lambda/${lambda.functionName}`,
+      removalPolicy: RemovalPolicy.DESTROY,
+      retention: RetentionDays.ONE_WEEK,
     });
 
     new Rule(this, 'cron-cost-notifier-function', {
