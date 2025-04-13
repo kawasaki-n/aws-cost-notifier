@@ -3,14 +3,15 @@ import { Handler } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
 import axios, { AxiosError } from 'axios';
 import moment = require('moment');
-import * as qs from 'querystring';
 import os = require('os');
 
+const PUSH_ENDPOINT = 'https://api.line.me/v2/bot/message/push';
 const dateFormat = 'YYYY-MM-DD';
 
 export const handler: Handler = async () => {
   const awsCostDatas = await getAwsCost();
   const message = await convertMessage(awsCostDatas);
+  console.log(message);
   await notify(message);
 
   return {
@@ -59,7 +60,8 @@ const convertMessage = async (awsCostDatas: AwsCostDataType[] | undefined) => {
 
   const rate = await getCurrentRate();
 
-  let ret = `${os.EOL}`;
+  // let ret = `${os.EOL}`;
+  let ret = '';
   const data = awsCostDatas[0];
   ret += `${data.period_start} から ${data.period_end} までの利用料金は ${convertDollarToJpy(
     data.totalCost,
@@ -94,15 +96,16 @@ const convertDollarToJpy = (dollar: number, rate: number | null) => {
 
 const notify = async (msg: string) => {
   const config = {
-    url: 'https://notify-api.line.me/api/notify',
+    url: PUSH_ENDPOINT,
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${process.env.LINE_NOTIFY_ACCESS_TOKEN}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
+      'Content-Type': 'application/json',
     },
-    data: qs.stringify({
-      message: msg,
-    }),
+    data: {
+      to: `${process.env.LINE_OWN_USER_ID}`,
+      messages: [{ type: 'text', text: msg }],
+    },
   };
   await axios
     // @ts-ignore

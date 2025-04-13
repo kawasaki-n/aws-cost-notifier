@@ -29,12 +29,14 @@ export class AwsCostNotifierStack extends cdk.Stack {
 
     const lambda = new NodejsFunction(this, 'CostNotifierFunction', {
       entry: 'src/handler/index.ts',
-      runtime: Runtime.NODEJS_14_X,
+      runtime: Runtime.NODEJS_22_X,
       handler: 'handler',
       functionName: 'cost-notifier-function',
       environment: {
         LINE_NOTIFY_ACCESS_TOKEN: process.env.LINE_NOTIFY_ACCESS_TOKEN || '',
         OPEN_EXCHANGE_RATES_APP_ID: process.env.OPEN_EXCHANGE_RATES_APP_ID || '',
+        LINE_OWN_USER_ID: process.env.LINE_OWN_USER_ID || '',
+        LINE_CHANNEL_ACCESS_TOKEN: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
       },
       memorySize: 128,
       timeout: cdk.Duration.seconds(30),
